@@ -44,6 +44,7 @@ int main(int, char **) {
     }
   }
 
+  std::cout << "C++" << '\n';
   const auto part = std::getenv("part");
   if (part == nullptr || strcmp(part, "part1") == 0) {
     std::cout << part_one(elfs) << '\n';
