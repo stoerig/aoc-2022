@@ -1,29 +1,43 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <stdio.h>
 #include <string.h>
-#include <vector>
 
-int part_one(const std::vector<int> &elfs) {
-  const auto res = std::max_element(elfs.cbegin(), elfs.cend());
-  return *res;
+int part_one(const std::map<int, int> &elfs) {
+  const auto res = std::max_element(
+      elfs.cbegin(), elfs.cend(),
+      [](const std::pair<int, int> &p1, const std::pair<int, int> &p2) {
+        return p1.second < p2.second;
+      });
+
+  return res->second;
 }
 
-int part_two(std::vector<int> &elfs) {
-  std::sort(elfs.begin(), elfs.end(), std::greater<int>());
+int part_two(std::map<int, int> &elfs) {
+  auto sum_of_top_three = 0;
+  for (int i = 0; i < 3; i++) {
+    const auto res = std::max_element(
+        elfs.cbegin(), elfs.cend(),
+        [](const std::pair<int, int> &p1, const std::pair<int, int> &p2) {
+          return p1.second < p2.second;
+        });
 
-  return elfs[0] + elfs[1] + elfs[2];
+    sum_of_top_three += res->second;
+    elfs.erase(res->first);
+  }
+
+  return sum_of_top_three;
 }
 int main(int, char **) {
-  std::vector<int> elfs;
+  std::map<int, int> elfs;
   std::ifstream input("input.txt");
 
-  elfs.push_back(0);
-  auto elf = 0;
+  int elf = 0;
+  elfs[elf] = 0;
   for (std::string line; std::getline(input, line);) {
     if (line == "") {
-      elfs.push_back(0);
       elf++;
     } else {
       elfs[elf] += std::stoi(line);
