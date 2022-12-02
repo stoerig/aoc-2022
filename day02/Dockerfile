@@ -1,6 +1,6 @@
-from alpine:latest as base
+from alpine:latest as BASE
 
-from base as build
+from BASE as BUILD
 
 RUN apk add zig --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
 
@@ -8,7 +8,7 @@ COPY aoc.zig .
 
 RUN zig build-exe aoc.zig -O ReleaseFast --name aoc
 
-from base as final
+from BASE as FINAL
 
 COPY input.txt .
 COPY --from=build aoc .
