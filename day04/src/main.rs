@@ -18,7 +18,7 @@ impl Section {
     }
 
     fn any_overlap(self) -> bool {
-        return (self.data[0][0] <= self.data[1][0]) || (self.data[1][0] <= self.data[0][0]);
+        return false;
     }
 }
 
@@ -74,6 +74,7 @@ fn main() {
             }
         }
     }
+    println!("Rust");
     println!("{}", result);
 }
 
