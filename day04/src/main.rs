@@ -5,55 +5,45 @@ use std::{
     io::{self, BufRead},
 };
 
-type LineProcessor = fn(String) -> u32;
+type LineProcessor = fn(String) -> bool;
 
 struct Section {
-    data: [[u32; 2]; 2],
+    start: u32,
+    end: u32,
 }
 
 impl Section {
-    fn full_overlap(self) -> bool {
-        return (self.data[0][0] <= self.data[1][0] && self.data[0][1] >= self.data[1][1])
-            || (self.data[1][0] <= self.data[0][0] && self.data[1][1] >= self.data[0][1]);
+    fn init(start: u32, end: u32) -> Section {
+        Section { start, end }
     }
 
-    fn any_overlap(self) -> bool {
-        return false;
+    fn full_overlap(self, other: Section) -> bool {
+        return (self.start >= other.start && self.end <= other.end)
+            || (other.start >= self.start && other.end <= self.end);
     }
-}
 
-fn part_one(line: String) -> u32 {
-    let s: Section = parse_line(line);
-    if s.full_overlap() {
-        return 1;
-    } else {
-        return 0;
+    fn any_overlap(self, other: Section) -> bool {
+        return (self.start >= other.start && self.start <= other.end)
+            || (other.start >= self.start && other.start <= self.end);
     }
 }
 
-fn parse_line(line: String) -> Section {
-    let mut s: Section = Section {
-        data: [[0; 2], [0; 2]],
-    };
-
-    for (k, section) in line.split(',').enumerate() {
-        for (i, number) in section.split('-').enumerate() {
-            let n = number.parse::<u32>().unwrap();
-            s.data[k][i] = n;
-        }
-    }
-
-    return s;
+fn part_one(line: String) -> bool {
+    let (s1, s2): (Section, Section) = parse_line(line);
+    return s1.full_overlap(s2);
 }
 
-fn part_two(line: String) -> u32 {
-    let s: Section = parse_line(line);
+fn parse_line(line: String) -> (Section, Section) {
+    let res: Vec<u32> = line
+        .split([',', '-'])
+        .map(|number| number.parse::<u32>().unwrap())
+        .collect();
+    return (Section::init(res[0], res[1]), Section::init(res[2], res[3]));
+}
 
-    if s.any_overlap() {
-        return 1;
-    } else {
-        return 0;
-    }
+fn part_two(line: String) -> bool {
+    let (s1, s2): (Section, Section) = parse_line(line);
+    return s1.any_overlap(s2);
 }
 
 fn main() {
@@ -61,7 +51,7 @@ fn main() {
     // File hosts must exist in current path before this produces output
     let part = env::var("part").unwrap_or("part1".to_string());
 
-    let process_line: LineProcessor = match &*part {
+    let hit: LineProcessor = match &*part {
         "part2" => part_two,
         _ => part_one,
     };
@@ -70,7 +60,9 @@ fn main() {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
             if let Ok(ip) = line {
-                result += process_line(ip);
+                if hit(ip) {
+                    result += 1;
+                }
             }
         }
     }
